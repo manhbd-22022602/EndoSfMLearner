@@ -38,7 +38,7 @@ def main():
         return
 
     disp_net = DispResNet(args.resnet_layers, False).to(device)
-    weights = torch.load(args.pretrained)
+    weights = torch.load(args.pretrained, map_location=device)
     disp_net.load_state_dict(weights['state_dict'])
     disp_net.eval()
 
