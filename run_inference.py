@@ -61,6 +61,7 @@ def main():
         # Load and preprocess images
         images = []
         for file in batch_files:
+            print(file)
             img = cv2.imread(file)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img = img.astype(np.float32)
