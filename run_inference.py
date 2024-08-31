@@ -44,29 +44,20 @@ def main():
     disp_net.load_state_dict(weights['state_dict'])
     disp_net.eval()
 
-    dataset_dir = Path(args.dataset_dir)
     output_dir = Path(args.output_dir)
     output_dir.makedirs_p()
 
-    if args.dataset_list is not None:
-        with open(args.dataset_list, 'r') as f:
-            test_files = [dataset_dir / file for file in f.read().splitlines()]
-        print('{} files to test'.format(len(test_files)))
-    elif args.image_list is not None:
-        # Read image paths from the file
-        image_paths_df = pd.read_csv(args.image_list, header=None, sep='\t')
-        image_paths = image_paths_df[0].tolist()  # Assuming image paths are in the first column
+    # Read image paths from the file
+    image_paths_df = pd.read_csv(args.image_list, header=None, sep='\t')
+    image_paths = image_paths_df[0].tolist()  # Assuming image paths are in the first column
 
-        print('{} files to test'.format(len(image_paths)))
-    else:
-        test_files = sum([dataset_dir.files('*.{}'.format(ext)) for ext in args.img_exts], [])
-        print('{} files to test'.format(len(test_files)))
+    print('{} files to test'.format(len(image_paths)))
 
-    # Tạo batch từ danh sách file
-    for i in tqdm(range(0, len(test_files), args.batch_size)):
-        batch_files = test_files[i:i + args.batch_size]
+    # Create batches from image paths
+    for i in tqdm(range(0, len(image_paths), args.batch_size)):
+        batch_files = image_paths[i:i + args.batch_size]
 
-        # Load và tiền xử lý hình ảnh
+        # Load and preprocess images
         images = []
         for file in batch_files:
             img = imread(file).astype(np.float32)
@@ -81,14 +72,14 @@ def main():
         tensor_imgs = torch.from_numpy(np.stack(images)).to(device)
         tensor_imgs = ((tensor_imgs / 255 - 0.45) / 0.225)
 
-        # Dự đoán với batch
+        # Predict with batch
         outputs = disp_net(tensor_imgs)
 
-        # Lưu các kết quả
+        # Save results
         for j, file in enumerate(batch_files):
             output = outputs[j]
-            file_path, file_ext = file.relpath(args.dataset_dir).splitext()
-            file_name = '-'.join(file_path.splitall())
+            file_path, file_ext = Path(file).stem, Path(file).suffix
+            file_name = file_path.replace('/', '_')
 
             if args.output_disp:
                 disp = (255 * tensor2array(output, max_value=None, colormap='bone')).astype(np.uint8)
