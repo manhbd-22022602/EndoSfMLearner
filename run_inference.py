@@ -1,6 +1,6 @@
 import torch
 
-from imageio import imread, imsave
+import cv2
 import numpy as np
 import pandas as pd
 from path import Path
@@ -61,7 +61,9 @@ def main():
         # Load and preprocess images
         images = []
         for file in batch_files:
-            img = imread(file).astype(np.float32)
+            img = cv2.imread(file)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img = img.astype(np.float32)
             h, w, _ = img.shape
             if (not args.no_resize) and (h != args.img_height or w != args.img_width):
                 start_x = (w - args.img_width) // 2
@@ -84,11 +86,11 @@ def main():
 
             if args.output_disp:
                 disp = (255 * tensor2array(output, max_value=None, colormap='bone')).astype(np.uint8)
-                imsave(output_dir / '{}_disp{}'.format(file_name, file_ext), np.transpose(disp, (1, 2, 0)))
+                cv2.imwrite(str(output_dir / '{}_disp{}'.format(file_name, file_ext)), cv2.cvtColor(np.transpose(disp, (1, 2, 0)), cv2.COLOR_RGB2BGR))
             if args.output_depth:
                 depth = 1 / output
                 depth = (255 * tensor2array(depth, max_value=10, colormap='rainbow')).astype(np.uint8)
-                imsave(output_dir / '{}_depth{}'.format(file_name, file_ext), np.transpose(depth, (1, 2, 0)))
+                cv2.imwrite(str(output_dir / '{}_depth{}'.format(file_name, file_ext)), cv2.cvtColor(np.transpose(depth, (1, 2, 0)), cv2.COLOR_RGB2BGR))
 
 
 if __name__ == '__main__':
