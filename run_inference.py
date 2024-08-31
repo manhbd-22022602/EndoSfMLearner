@@ -72,7 +72,7 @@ def main():
                 start_w = (w - crop_w) // 2
                 img = img[start_h:start_h + crop_h, start_w:start_w + crop_w]
             img = img.astype(np.float32)
-            depth = torch.tensor(depth).float()
+            img = torch.tensor(img).float()
             img = np.transpose(img, (2, 0, 1))
             images.append(img)
 
