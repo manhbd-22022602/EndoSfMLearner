@@ -2,6 +2,7 @@ import torch
 
 from imageio import imread, imsave
 import numpy as np
+import pandas as pd
 from path import Path
 import argparse
 from tqdm import tqdm
@@ -21,6 +22,7 @@ parser.add_argument("--no-resize", action='store_true', help="no resizing is don
 
 parser.add_argument("--dataset-list", default=None, type=str, help="Dataset list file")
 parser.add_argument("--dataset-dir", default='.', type=str, help="Dataset directory")
+parser.add_argument("--image-list", default=None, type=str, help="File with list of image paths")
 parser.add_argument("--output-dir", default='output', type=str, help="Output directory")
 parser.add_argument("--img-exts", default=['png', 'jpg', 'bmp'], nargs='*', type=str, help="images extensions to glob")
 parser.add_argument("--batch-size", default=1, type=int, help="Batch size for inference")
@@ -49,6 +51,12 @@ def main():
     if args.dataset_list is not None:
         with open(args.dataset_list, 'r') as f:
             test_files = [dataset_dir / file for file in f.read().splitlines()]
+    elif args.image_list is not None:
+        # Read image paths from the file
+        image_paths_df = pd.read_csv(args.image_list, header=None, sep='\t')
+        image_paths = image_paths_df[0].tolist()  # Assuming image paths are in the first column
+
+        print('{} files to test'.format(len(image_paths)))
     else:
         test_files = sum([dataset_dir.files('*.{}'.format(ext)) for ext in args.img_exts], [])
 
