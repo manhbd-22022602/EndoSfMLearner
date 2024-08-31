@@ -51,6 +51,7 @@ def main():
     if args.dataset_list is not None:
         with open(args.dataset_list, 'r') as f:
             test_files = [dataset_dir / file for file in f.read().splitlines()]
+        print('{} files to test'.format(len(test_files)))
     elif args.image_list is not None:
         # Read image paths from the file
         image_paths_df = pd.read_csv(args.image_list, header=None, sep='\t')
@@ -59,8 +60,7 @@ def main():
         print('{} files to test'.format(len(image_paths)))
     else:
         test_files = sum([dataset_dir.files('*.{}'.format(ext)) for ext in args.img_exts], [])
-
-    print('{} files to test'.format(len(test_files)))
+        print('{} files to test'.format(len(test_files)))
 
     # Tạo batch từ danh sách file
     for i in tqdm(range(0, len(test_files), args.batch_size)):
