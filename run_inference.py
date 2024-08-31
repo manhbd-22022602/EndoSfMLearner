@@ -61,7 +61,6 @@ def main():
         # Load and preprocess images
         images = []
         for file in batch_files:
-            print(file)
             img = cv2.imread(file)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img = img.astype(np.float32)
@@ -72,11 +71,11 @@ def main():
                 img = img[start_y:start_y + args.img_height, start_x:start_x + args.img_width]
             img = np.transpose(img, (2, 0, 1))
             images.append(img)
-            print(f"Processed image size: {img.shape}")
-
+        print('1')
         tensor_imgs = torch.from_numpy(np.stack(images)).to(device)
+        print('2')
         tensor_imgs = ((tensor_imgs / 255 - 0.45) / 0.225)
-
+        print('3')
         # Predict with batch
         outputs = disp_net(tensor_imgs)
 
