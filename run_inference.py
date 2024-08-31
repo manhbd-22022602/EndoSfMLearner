@@ -65,10 +65,7 @@ def main():
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img = img.astype(np.float32)
             h, w, _ = img.shape
-            if (not args.no_resize) and (h != args.img_height or w != args.img_width):
-                start_x = (w - args.img_width) // 2
-                start_y = (h - args.img_height) // 2
-                img = img[start_y:start_y + args.img_height, start_x:start_x + args.img_width]
+
             img = np.transpose(img, (2, 0, 1))
             images.append(img)
 
