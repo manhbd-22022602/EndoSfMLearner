@@ -1,7 +1,6 @@
 import torch
 
 from imageio import imread, imsave
-from scipy.misc import imresize
 import numpy as np
 from path import Path
 import argparse
