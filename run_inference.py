@@ -71,6 +71,7 @@ def main():
                 img = img[start_y:start_y + args.img_height, start_x:start_x + args.img_width]
             img = np.transpose(img, (2, 0, 1))
             images.append(img)
+            print(f"Processed image size: {img.shape}")
 
         tensor_imgs = torch.from_numpy(np.stack(images)).to(device)
         tensor_imgs = ((tensor_imgs / 255 - 0.45) / 0.225)
