@@ -25,6 +25,7 @@ parser.add_argument("--dataset-dir", default='.', type=str, help="Dataset direct
 parser.add_argument("--image-list", default=None, type=str, help="File with list of image paths")
 parser.add_argument("--output-dir", default='output', type=str, help="Output directory")
 parser.add_argument("--img-exts", default=['png', 'jpg', 'bmp'], nargs='*', type=str, help="images extensions to glob")
+parser.add_argument("--position", required=True, type=str, help="Position identifier for output files")
 parser.add_argument("--batch-size", default=1, type=int, help="Batch size for inference")
 parser.add_argument('--resnet-layers', required=True, type=int, default=18, choices=[18, 50],
                     help='depth network architecture.')
@@ -44,7 +45,7 @@ def main():
     disp_net.load_state_dict(weights['state_dict'])
     disp_net.eval()
 
-    output_dir = Path(args.output_dir)
+    output_dir = Path(args.output_dir) / args.position
     output_dir.makedirs_p()
 
     # Read image paths from the file
