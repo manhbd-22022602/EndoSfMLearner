@@ -66,13 +66,7 @@ def main():
             img = img.astype(np.float32)
             h, w, _ = img.shape
             if (not args.no_resize) and (h != args.img_height or w != args.img_width):
-                start_h = max(0, (h - args.img_height) // 2)
-                start_w = max(0, (w - args.img_width) // 2)
-                end_h = start_h + args.img_height
-                end_w = start_w + args.img_width
-                
-                img = img[start_h:end_h, start_w:end_w, :].astype(np.float32)
-
+                img = cv2.resize(img, (args.img_width, args.img_height), interpolation=cv2.INTER_LINEAR).astype(np.float32)
             img = np.transpose(img, (2, 0, 1))
             images.append(img)
 
