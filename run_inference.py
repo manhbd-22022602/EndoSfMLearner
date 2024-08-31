@@ -26,6 +26,7 @@ parser.add_argument("--image-list", default=None, type=str, help="File with list
 parser.add_argument("--output-dir", default='output', type=str, help="Output directory")
 parser.add_argument("--img-exts", default=['png', 'jpg', 'bmp'], nargs='*', type=str, help="images extensions to glob")
 parser.add_argument("--position", required=True, type=str, help="Position identifier for output files")
+parser.add_argument("--batch-size", default=1, type=int, help="Batch size for inference")
 parser.add_argument('--resnet-layers', required=True, type=int, default=18, choices=[18, 50],
                     help='depth network architecture.')
 
@@ -49,20 +50,20 @@ def main():
 
     # Read image paths from the file
     image_paths_df = pd.read_csv(args.image_list, header=None, sep='\t')
-    image_paths = image_paths_df[0].tolist()  # Assuming image paths are in the first column
+    image_paths = image_paths_df[0].tolist()
 
     print('{} files to test'.format(len(image_paths)))
 
+    # Create batches from image paths
     for file in tqdm(image_paths):
         # Load and preprocess image
         img = cv2.imread(file)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img = img.astype(np.float32)
+        
         h, w, _ = img.shape
         if (not args.no_resize) and (h != args.img_height or w != args.img_width):
-            start_x = (w - args.img_width) // 2
-            start_y = (h - args.img_height) // 2
-            img = img[start_y:start_y + args.img_height, start_x:start_x + args.img_width]
+            img = cv2.resize(img, (args.img_width, args.img_height), interpolation=cv2.INTER_LINEAR).astype(np.float32)
         img = np.transpose(img, (2, 0, 1))
 
         tensor_img = torch.from_numpy(img).unsqueeze(0).to(device)
