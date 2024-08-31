@@ -55,34 +55,41 @@ def main():
     print('{} files to test'.format(len(image_paths)))
 
     # Create batches from image paths
-    for file in tqdm(image_paths):
-        # Load and preprocess image
-        img = cv2.imread(file)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        img = img.astype(np.float32)
-        
-        h, w, _ = img.shape
-        if (not args.no_resize) and (h != args.img_height or w != args.img_width):
-            img = cv2.resize(img, (args.img_width, args.img_height), interpolation=cv2.INTER_LINEAR).astype(np.float32)
-        img = np.transpose(img, (2, 0, 1))
+    for i in tqdm(range(0, len(image_paths), args.batch_size)):
+        batch_files = image_paths[i:i + args.batch_size]
 
-        tensor_img = torch.from_numpy(img).unsqueeze(0).to(device)
-        tensor_img = ((tensor_img / 255 - 0.45) / 0.225)
+        # Load and preprocess images
+        images = []
+        for file in batch_files:
+            img = cv2.imread(file)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img = img.astype(np.float32)
+            h, w, _ = img.shape
+            if (not args.no_resize) and (h != args.img_height or w != args.img_width):
+                img = cv2.resize(img, (args.img_width, args.img_height), interpolation=cv2.INTER_LINEAR).astype(np.float32)
+            img = np.transpose(img, (2, 0, 1))
+            images.append(img)
 
-        # Predict
-        output = disp_net(tensor_img)
+        tensor_imgs = torch.from_numpy(np.stack(images)).to(device)
+        tensor_imgs = ((tensor_imgs / 255 - 0.45) / 0.225)
+
+        # Predict with batch
+        outputs = disp_net(tensor_imgs)
 
         # Save results
-        file_path, file_ext = Path(file).stem, Path(file).suffix
-        file_name = file_path.replace('/', '_')
+        for j, file in enumerate(batch_files):
+            output = outputs[j]
+            file_path, file_ext = Path(file).stem, Path(file).suffix
+            file_name = file_path.replace('/', '_')
 
-        if args.output_disp:
-            disp = (255 * tensor2array(output[0], max_value=None, colormap='bone')).astype(np.uint8)
-            cv2.imwrite(str(output_dir / '{}_disp{}'.format(file_name, file_ext)), cv2.cvtColor(np.transpose(disp, (1, 2, 0)), cv2.COLOR_RGB2BGR))
-        if args.output_depth:
-            depth = 1 / output[0]
-            depth = (255 * tensor2array(depth, max_value=10, colormap='rainbow')).astype(np.uint8)
-            cv2.imwrite(str(output_dir / '{}_depth{}'.format(file_name, file_ext)), cv2.cvtColor(np.transpose(depth, (1, 2, 0)), cv2.COLOR_RGB2BGR))
+            if args.output_disp:
+                disp = (255 * tensor2array(output, max_value=None, colormap='bone')).astype(np.uint8)
+                cv2.imwrite(str(output_dir / '{}_disp{}'.format(file_name, file_ext)), cv2.cvtColor(np.transpose(disp, (1, 2, 0)), cv2.COLOR_RGB2BGR))
+            if args.output_depth:
+                depth = 1 / output
+                depth = (255 * tensor2array(depth, max_value=10, colormap='rainbow')).astype(np.uint8)
+                cv2.imwrite(str(output_dir / '{}_depth{}'.format(file_name, file_ext)), cv2.cvtColor(np.transpose(depth, (1, 2, 0)), cv2.COLOR_RGB2BGR))
+
 
 if __name__ == '__main__':
     main()
