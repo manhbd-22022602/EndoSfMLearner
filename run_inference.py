@@ -107,8 +107,8 @@ def main():
 
         output = disp_net(tensor_img)[0]
 
-        file_path, file_ext = file.relative_to(args.dataset_dir).stem, file.suffix
-        file_name = '-'.join(file_path.split('/'))
+        file_path, file_ext = file.relpath(args.dataset_dir).splitext()
+        file_name = '-'.join(file_path.splitall())
 
         if args.output_disp:
             disp = (255*tensor2array(output, max_value=None, colormap='bone')).astype(np.uint8)
