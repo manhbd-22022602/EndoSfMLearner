@@ -64,16 +64,10 @@ def main():
             img = cv2.imread(file)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             h, w, _ = img.shape
-            crop_h = args.img_height
-            crop_w = args.img_width
-            
-            if (not args.no_resize) and (h != crop_h or w != crop_w):
-                start_h = (h - crop_h) // 2
-                start_w = (w - crop_w) // 2
-                img = img[start_h:start_h + crop_h, start_w:start_w + crop_w]
-            img = img.astype(np.float32)
-            img = torch.tensor(img).float()
+            if (not args.no_resize) and (h != args.img_height or w != args.img_width):
+                img = cv2.resize(img, (args.img_width, args.img_height), interpolation=cv2.INTER_LINEAR).astype(np.float32)
             img = np.transpose(img, (2, 0, 1))
+
             images.append(img)
 
         tensor_imgs = torch.from_numpy(np.stack(images)).to(device)
