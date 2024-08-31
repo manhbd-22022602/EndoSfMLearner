@@ -63,9 +63,16 @@ def main():
         for file in batch_files:
             img = cv2.imread(file)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            img = img.astype(np.float32)
             h, w, _ = img.shape
-
+            crop_h = args.img_height
+            crop_w = args.img_width
+            
+            if (not args.no_resize) and (h != crop_h or w != crop_w):
+                start_h = (h - crop_h) // 2
+                start_w = (w - crop_w) // 2
+                img = img[start_h:start_h + crop_h, start_w:start_w + crop_w]
+            img = img.astype(np.float32)
+            depth = torch.tensor(depth).float()
             img = np.transpose(img, (2, 0, 1))
             images.append(img)
 
