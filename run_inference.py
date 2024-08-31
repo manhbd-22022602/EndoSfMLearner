@@ -71,11 +71,10 @@ def main():
                 img = img[start_y:start_y + args.img_height, start_x:start_x + args.img_width]
             img = np.transpose(img, (2, 0, 1))
             images.append(img)
-        print('1')
+
         tensor_imgs = torch.from_numpy(np.stack(images)).to(device)
-        print('2')
         tensor_imgs = ((tensor_imgs / 255 - 0.45) / 0.225)
-        print('3')
+        print(tensor_imgs.shape)
         # Predict with batch
         outputs = disp_net(tensor_imgs)
 
