@@ -88,7 +88,7 @@ def main():
             if args.output_depth:
                 depth = 1 / output
                 # Lưu file .npy
-                np.save(str(output_dir / f'args.position_sfm.npy'), depth.cpu().numpy())
+                np.save(str(output_dir / f'{args.position}_sfm.npy'), depth.cpu().numpy())
                 depth = (255 * tensor2array(depth, max_value=10, colormap='rainbow')).astype(np.uint8)
                 cv2.imwrite(str(output_dir / '{}_depth{}'.format(file_name, file_ext)), cv2.cvtColor(np.transpose(depth, (1, 2, 0)), cv2.COLOR_RGB2BGR))
 
